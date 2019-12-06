@@ -4,9 +4,10 @@ import MapView, {Circle} from 'react-native-maps';
 import {BusTramApiContext} from '../contexts/BusTramApiContext';
 import Vehicle from '../components/Vehicle';
 import {Fab, Icon, Button, Drawer, Text, Content, Body} from 'native-base';
-import {withTheme} from './../theming';
 import Modal from 'react-native-modalbox';
+import {applyTheme} from 'react-native-theme-provider';
 
+@applyTheme()
 class MapScreen extends React.Component {
   static navigationOptions = {
     header: null,
@@ -18,6 +19,37 @@ class MapScreen extends React.Component {
       latitudeDelta: 0.0922,
       longitudeDelta: 0.0421,
     };
+    var fab = <Fab
+    active={true}
+    containerStyle={{}}
+    position="bottomRight"
+    onPress={() => toggleRadar()}>
+    <Icon
+      name="radar"
+      type="MaterialCommunityIcons"
+    />
+    <Button
+      style={{
+        marginBottom: 14,
+      }}>
+      <Icon
+        name="gps-fixed"
+        type="MaterialIcons"
+      />
+    </Button>
+    <Button
+      onPress={() => this.props.navigation.navigate('Settings')}>
+      <Icon
+        name="md-settings"
+      />
+    </Button>
+    <Button
+      onPress={() => this._modal.open()}>
+      <Icon
+        name="md-menu"
+      />
+    </Button>
+  </Fab>
     return (
       <BusTramApiContext.Consumer>
         {({vehicles, setMapRegion, radar, toggleRadar}) => {
@@ -25,7 +57,6 @@ class MapScreen extends React.Component {
             <>
               <View style={styles.container}>
                 <MapView
-                  customMapStyle={this.props.theme.mapStyle}
                   initialRegion={initRegion}
                   showsCompass={true}
                   rotateEnabled={false}
@@ -45,52 +76,14 @@ class MapScreen extends React.Component {
                       center={radar.coordinates}
                       radius={radar.radiusKMs * 1000}
                       strokeWidth={1}
-                      strokeColor={this.props.theme.radarStrokeColor}
-                      fillColor={this.props.theme.radarFillColor}
+                      strokeColor={'blue'}
+                      fillColor={'blue'}
                     />
                   )}
                 </MapView>
               </View>
               <View style={{flex: 1, marginBottom: 10, zIndex: 0}}>
-                <Fab
-                  active={true}
-                  containerStyle={{}}
-                  style={{backgroundColor: this.props.theme.accentColor}}
-                  position="bottomRight"
-                  onPress={() => toggleRadar()}>
-                  <Icon
-                    name="radar"
-                    type="MaterialCommunityIcons"
-                    style={{color: this.props.theme.primaryColor}}
-                  />
-                  <Button
-                    style={{
-                      backgroundColor: this.props.theme.accentColor,
-                      marginBottom: 14,
-                    }}>
-                    <Icon
-                      name="gps-fixed"
-                      type="MaterialIcons"
-                      style={{color: this.props.theme.primaryColor}}
-                    />
-                  </Button>
-                  <Button
-                    style={{backgroundColor: this.props.theme.accentColor}}
-                    onPress={() => this.props.navigation.navigate('Settings')}>
-                    <Icon
-                      name="md-settings"
-                      style={{color: this.props.theme.primaryColor}}
-                    />
-                  </Button>
-                  <Button
-                    style={{backgroundColor: this.props.theme.accentColor}}
-                    onPress={() => this._modal.open()}>
-                    <Icon
-                      name="md-menu"
-                      style={{color: this.props.theme.primaryColor}}
-                    />
-                  </Button>
-                </Fab>
+                {fab}
               </View>
               <Modal
                 style={{height: 300, zIndex: 1}}
@@ -116,4 +109,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withTheme(MapScreen);
+export default MapScreen;

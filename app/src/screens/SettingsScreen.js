@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import {View, StyleSheet} from 'react-native';
-import {withTheme} from './../theming';
 import {
   Container,
   Header,
@@ -18,7 +17,7 @@ class SettingsScreen extends React.Component {
   render() {
     return (
       <Container>
-        <Header style={{backgroundColor: this.props.theme.headerColor}}>
+        <Header>
           <Left>
             <Button transparent onPress={() => this.props.navigation.goBack()}>
               <Icon name="arrow-back" />
@@ -29,11 +28,11 @@ class SettingsScreen extends React.Component {
           </Body>
           <Right />
         </Header>
-        <Content style={{backgroundColor: this.props.theme.primaryColor}}>
-          <Button onPress={() => this.props.handleThemeChange('dark')}>
+        <Content>
+          <Button onPress={() => {}}>
             <Text>change theme</Text>
           </Button>
-          <Button onPress={() => this.props.handleThemeChange('default')}>
+          <Button onPress={() => {}}>
             <Text>change theme</Text>
           </Button>
         </Content>
@@ -44,4 +43,4 @@ class SettingsScreen extends React.Component {
 const styles = StyleSheet.create({});
 
 // export default withTheme(SettingsScreen);
-export default withTheme(SettingsScreen);
+export default SettingsScreen;

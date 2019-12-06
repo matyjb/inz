@@ -1,35 +1,25 @@
-import React, {Component} from 'react';
-import {ThemeProvider} from './theming';
-import {Text, StyleSheet, View, StatusBar, SafeAreaView} from 'react-native';
-import {createAppContainer} from 'react-navigation';
+import React, { Component } from 'react';
+import { StyleSheet, StatusBar } from 'react-native';
+import { createAppContainer } from 'react-navigation';
 import AppNavigator from './AppNavigator';
-import {themes} from './theming';
+import { themes } from './theming';
 import BusTramApiContextProvider from './contexts/BusTramApiContext';
-import {Root} from 'native-base';
+import { Root } from 'native-base';
+import ThemeProvider from 'react-native-theme-provider';
 
-const AppContainer = props => {
-  const AppContainer = createAppContainer(AppNavigator(props));
-  return <AppContainer />;
-};
-// const AppContainer = props => createAppContainer(AppNavigator(props));
+const AppContainer = createAppContainer(AppNavigator);
 export default class App extends Component {
-  state = {
-    theme: themes.default,
-  };
-  handleThemeChange = themeName => {
-    this.setState({theme: themes[themeName]});
-  };
   render() {
     return (
       <Root>
-        <BusTramApiContextProvider>
-          <StatusBar hidden />
-          <ThemeProvider theme={this.state.theme}>
-            <AppContainer handleThemeChange={this.handleThemeChange} />
-          </ThemeProvider>
-        </BusTramApiContextProvider>
+        <ThemeProvider themes={themes}>
+          <BusTramApiContextProvider>
+            <StatusBar barStyle="dark-content" />
+            <AppContainer />
+          </BusTramApiContextProvider>
+        </ThemeProvider>
       </Root>
-    );
+    )
   }
 }
 

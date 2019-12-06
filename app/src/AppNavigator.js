@@ -3,14 +3,13 @@ import React, {Component} from 'react';
 import MapScreen from './screens/MapScreen';
 import SettingsScreen from './screens/SettingsScreen';
 
-const AppNavigator = screenProps => {
-  return createStackNavigator({
+const AppNavigator = createStackNavigator({
   Map: {
     screen: MapScreen,
   },
   Settings: {
-    screen: props => <SettingsScreen {...props} {...screenProps}/>,
-  }
+    screen: SettingsScreen,
+  },
 },{
   initialRouteName: 'Map',
   defaultNavigationOptions: {
@@ -20,5 +19,5 @@ const AppNavigator = screenProps => {
     },
   },
 });
-}
+
 export default AppNavigator;
