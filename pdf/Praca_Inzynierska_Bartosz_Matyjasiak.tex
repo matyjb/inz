@@ -1,15 +1,15 @@
 \documentclass{SGGW-thesis}
-\title{TODO}
+\title{Projekt i implementacja aplikacji mobilnej wyświetlającej aktualne lokalizacje autobusów oraz tramwajów w Warszawie}
 \Etitle{TODO}
 \author{Bartosz Matyjasiak}
-\date{2019\footnote{Dokument skompilowano z klasą {\tt SGGW-thesis} w wersji 1.05. Aktualną wersję klasy można pobrać ze strony \url{http://stud.lchmiel.pl} $\rightarrow$ Seminarium dyplomowe.}}
+\date{2020\footnote{Dokument skompilowano z klasą {\tt SGGW-thesis} w wersji 1.05. Aktualną wersję klasy można pobrać ze strony \url{http://stud.lchmiel.pl} $\rightarrow$ Seminarium dyplomowe.}}
 \university{Szkoła Główna Gospodarstwa Wiejskiego\\w Warszawie}
 \dep{Wydział Zastosowań Informatyki i Matematyki}
 \album{185117}
 \thesis{Praca dyplomowa inżynierska}
 \course{Informatyka}
-\promotor{dr.\ hab.\ inż.\ imie nazwisko, prof.\ SGGW} %TODO
-\pworkplace{Wydział Zastosowań Informatyki i Matematyki\\Katedra Informatyki}
+\promotor{dr.\ hab.\ inż.\ Leszek Chmielewski, prof.\ SGGW}
+\pworkplace{Wydział Zastosowań Informatyki i Matematyki\\Katedra Informatyki} % TODO
 
 \usepackage{hyperref}
 
@@ -36,15 +36,47 @@
 
 
 \chapter{Wstęp}
+% po co taka aplikacja
+\section{Założenia}
+% wymienić pare wymagań dla takiej aplikacji
+% motywy
+% aktualne pozycje 
+% możliwość sprawdzenia rozkładu jazdy na danym przystanku
+% dodawanie do ulubionych ptzystanków i linii
+\section{Grafiki koncepcyjne}
+% wybrane chyba
 
+\chapter{Implementacja}
+% tu napisać o plikach api, o wybranym react nativie, o paczce od map do reacta
+% napisać o GlobalContext, który trzyma wszystkie ustawienia aplikacji w tym ulubione itp
+% w tym też logike ale bez logiki aktualizacji pozycji autobusów ze względu na optymalizacje
+% by aplikacja nie przerosywowała się co 10 sekund, a jedynie mapa
+\section{Ulubione przystanki}
+% nie wiem czy jeszcze to bedzie potrzebne
 
-\section{Cel i zakres pracy}
+\section{Radar}
+% napisać że zbiera linie z przystanków które są w granicach radaru 
+% tu napisać o tym hacku z firebasem (tu napisać ze ze względu na 573925 zapytań o linie jakie są
+% na danym przystanku)
 
+\section{Aktualizacja pozycji pojazdów}
+% napisać o funkcji API której użyłem do tego celu
+% że co 10 sek
+% odpytuje wszystkie linie z ulubionych i dodaje do wyniku wszystko
+% odpytuje wszystkie linie z radaru, które nie są w ulubionych i dodaje tylko
+%   te, które są w zasięgu radaru
+\section{Pinezki przystanków}
+% pobieranie pliku z firebasem wspomnianego w sekcji Radar
+% tu napisać ze odrazu ten plik już ma pogrupowane przystanki po id
+%   by zoptymalizować (i o tym ze grupa ma tez wyliczoną średnią pozycje)
+% tu opisac logike wyswietlania
+\section{Ukrycie kluczy API w kodzie}
+% napisać że uzywam dwóch kluczy: do map i do warszawskiego api
+% że używam git'a do zarządzania zmianami w kodzie
+% i że klucze nalezy ukrywać w plikach np. .env
+% potem że żeby dodac klucz map google do androidManifest użyłem pakietu dotenv
+% a ze do warsaw api poprzez BuildConfig z paczki react-native-config
 
-\chapter{Użycie}
-
-
-\section{Instalacja}
 
 
 \chapter{Podsumowanie i wnioski}
