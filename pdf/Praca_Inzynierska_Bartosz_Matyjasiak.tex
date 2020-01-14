@@ -1,15 +1,16 @@
+\def\code#1{\texttt{#1}}
 \documentclass{SGGW-thesis}
-\title{Projekt i implementacja aplikacji mobilnej wyświetlającej aktualne lokalizacje autobusów oraz tramwajów w Warszawie}
+\title{Projekt i~implementacja aplikacji mobilnej wyświetlającej aktualne lokalizacje autobusów oraz tramwajów w~Warszawie}
 \Etitle{TODO}
 \author{Bartosz Matyjasiak}
-\date{2020\footnote{Dokument skompilowano z klasą {\tt SGGW-thesis} w wersji 1.05. Aktualną wersję klasy można pobrać ze strony \url{http://stud.lchmiel.pl} $\rightarrow$ Seminarium dyplomowe.}}
+\date{2020\footnote{Dokument skompilowano z~klasą {\tt SGGW-thesis} w~wersji 1.05. Aktualną wersję klasy można pobrać ze strony \url{http://stud.lchmiel.pl} $\rightarrow$ Seminarium dyplomowe.}}
 \university{Szkoła Główna Gospodarstwa Wiejskiego\\w Warszawie}
-\dep{Wydział Zastosowań Informatyki i Matematyki}
+\dep{Wydział Zastosowań Informatyki i~Matematyki}
 \album{185117}
 \thesis{Praca dyplomowa inżynierska}
 \course{Informatyka}
 \promotor{dr.\ hab.\ inż.\ Leszek Chmielewski, prof.\ SGGW}
-\pworkplace{Instytut Informatyki Technicznej\\JAKA KATEDRA} % TODO
+\pworkplace{Instytut Informatyki Technicznej\\Katedra Sztucznej Inteligencji}
 
 \usepackage{hyperref}
 
@@ -26,8 +27,8 @@
 
 
 {
-  % Spis treści może być złożony z pojedynczą interlinią, np. jeśli jedna linia wychodzi na następną stronę.
-  % W przeciwnym razie spis treści wstawić bez powyższego rozkazu i klamry.
+  % Spis treści może być złożony z~pojedynczą interlinią, np. jeśli jedna linia wychodzi na następną stronę.
+  % w~przeciwnym razie spis treści wstawić bez powyższego rozkazu i~klamry.
   \doublespacing
   \tableofcontents
 }
@@ -37,49 +38,124 @@
 
 \chapter{Wstęp}
 % po co taka aplikacja
+W dużych miastach komunikacja miejska jest kluczowym aspektem dla mieszkańców.
+Niestety duże miasta, w~tym Warszawa, boryka się z~korkami, wypadkami, robotami drogowymi i~innymi przez
+co autobusy czy tramwaje często nie jeżdżą według rozkładu jazdy. Dlatego dobrą informacją dla podróżującego
+jest lokalizacja GPS autobusu lub tramwaju. Warszawa udostępnia takie dane w~projekcie "Otwarte Dane" jednak są one
+w postaci nieczytelniej dla przeciętnego człowieka. Rozwiązaniem może być aplikacja mobilna,
+dzięki której użytkownik będzie widział na mapie kiedy dokładnie przyjedzie autobus lub tramwaj.
+% Dzięki temu też będzie wiedział czy powinien się pospieszyć idąc na przystanek.
 \section{Założenia}
 % wymienić pare wymagań dla takiej aplikacji
 % motywy
 % aktualne pozycje 
 % możliwość sprawdzenia rozkładu jazdy na danym przystanku
-% dodawanie do ulubionych ptzystanków i linii
+% dodawanie do ulubionych ptzystanków i~linii
+Aplikacja powinna:
+\begin{itemize}
+  \item{Pokazywać aktualne pozycje autobusów i~tramwajów na mapie}
+  \item{Pokazywać pozycje przystanków na mapie}
+  \item{Udostępniać rozkłady jazdy na każdym z~przystanków}
+  \item{Umożliwiać na dodanie linii autobusówej lub tranwajowej do ulubionych}
+  \item{Umożliwiać na dodanie przystanku do ulubionych}
+  \item{Wspierać dwa motywy:}
+  \begin{itemize}
+    \item{Jasny}
+    \item{Ciemny}
+  \end{itemize}
+\end{itemize}
 \section{Grafiki koncepcyjne}
 % wybrane chyba
 
 \chapter{Implementacja}
-% tu napisać o plikach api, o wybranym react nativie, o paczce od map do reacta
-% napisać o GlobalContext, który trzyma wszystkie ustawienia aplikacji w tym ulubione itp
-% w tym też logike ale bez logiki aktualizacji pozycji autobusów ze względu na optymalizacje
-% by aplikacja nie przerosywowała się co 10 sekund, a jedynie mapa
-\section{Ulubione przystanki}
-% nie wiem czy jeszcze to bedzie potrzebne
+% o~wybranym react nativie, o~paczce od map do reacta
+Do implementacji wybrałem React-Native stworzony przez Facebook. Pozwala on na zrobienie aplikacji na telefony
+z systemem Android oraz iOS przy pomocy jednego kodu źródłowego napisanego w~języku JavaScript XML
+(w skrócie JSX). Wybrałem także moduł react-native-maps, który jest odpowiedzialny za wyświetlanie
+mapy Google oraz sterowanie nią.
 
-\section{Radar}
-% napisać że zbiera linie z przystanków które są w granicach radaru 
-% tu napisać o tym hacku z firebasem (tu napisać ze ze względu na 573925 zapytań o linie jakie są
-% na danym przystanku)
+\section{Publiczne API Warszawy}
+% TODO: odnośniki do plików dokumentacji tych endpointów
+Miasto udostępnia dane w~postaci publicznego API. Z~pośród wielu punktów końcowych tego API są dostępne:
+\begin{itemize}
+  \item{Pozycje pojazdów danej linii}
+  \item{Zbiór linii, które odjeżdzają z~danego przystanku}
+  \item{Rozkład jazdy dla danej linii z~danego przystanku}
+  \item{Zbiór wszystkich przystanków}
+\end{itemize}
+Co ważne pozycje pojazdów są aktualizowane co 10 sekund i~też z~taką częstotliwością będą
+aktualizowane w~aplikacji.
+Wszystkie z~wymienionych punktów końcowych API zaimplementowałem w~klasie \code{WarsawAPI}.
+
+
+\section{Komponent GlobalContextProvider}
+% TODO: odnośnik do Contextu w~React
+Stworzyłem komponent nadrzędny, przy pomocy kontekstu dostępnego w~React, odpowiedzialny za całą logike
+aplikacji.
+Komponent ten przechowuje zmienne:
+\begin{itemize}
+  \item{Zbiór wszystkich przystanków}
+  \item{Zbiór ulubionych linii}
+  \item{Zbiór ulubionych przystanków}
+  \item{Aktualny wyświetlany region mapy}
+  \item{Pozycje radaru oraz jego promień}
+  \item{Zaznaczony przystanek lub pojazd}
+\end{itemize}
+Oraz funkcje do modyfikacji zmiennych.
+Komponent też przechowuje referencje do komponentu mapy oraz udostępnia funkcje
+od sterowania nią.
+
+Jednak nie umieściłem w~nim logiki aktualizowania pozycji pojazdów gdyż każda zmiana stanu
+tego komponentu powoduje przerysowanie wszystkich komponentów GlobalContext.Consumer, a~wraz nim wszystkich jego dzieci.
+Przez to, że ten komponent jest używany w~wielu miejscach to każda aktualizacja pozycji pojazdów, a~ta
+jest co 10 sekund, powodowałaby przerysowanie całej aplikacji. To wiązałoby się z~utratą na szybkości działania
+aplikacji.
 
 \section{Aktualizacja pozycji pojazdów}
-% napisać o funkcji API której użyłem do tego celu
+% napisać o~funkcji API której użyłem do tego celu
 % że co 10 sek
-% odpytuje wszystkie linie z ulubionych i dodaje do wyniku wszystko
-% odpytuje wszystkie linie z radaru, które nie są w ulubionych i dodaje tylko
-%   te, które są w zasięgu radaru
+% odpytuje wszystkie linie z~ulubionych i~dodaje do wyniku wszystko
+% odpytuje wszystkie linie z~radaru, które nie są w~ulubionych i~dodaje tylko
+%   te, które są w~zasięgu radaru
+By aktualizacja przebiegała sprawnie wraz z~wyświetlaniem logike aktualizacji umieściłem w~komponencie GMap.
+Jest to komponent, który jako dziecko posiada tylko komponent map. Jest to ważne bo gdy tylko zmieni się stan
+komponentu GMap, a~ten będzie się zmieniał co 10 sekund, to wywoła to przerysowanie tylko komponentu map.
+W tym komponencie zaimplementowałem funkcje, która:
+\begin{enumerate}
+  \item{Dla każdej ulubionej lub wykrytej przez radar linii są pobierane pozycje pojazdów tych linii}
+  \item{Jako pojazdy do wyświetlenia są brane pod uwage tylko te pojazdy, które są z~linii ulubionej lub w~promieniu radaru oraz czas wysłania sygnału GPS nie jest starszy niż 6 minut}
+\end{enumerate}
+Funkcja ta jest uruchamiana co minute za pomocą funkcji \code{setTimeout} wbudowanej w~język JavaScript
+
 \section{Pinezki przystanków}
-% pobieranie pliku z firebasem wspomnianego w sekcji Radar
+% pobieranie pliku z~firebasa, przygotowanego (tu o~grupach)
 % tu napisać ze odrazu ten plik już ma pogrupowane przystanki po id
-%   by zoptymalizować (i o tym ze grupa ma tez wyliczoną średnią pozycje)
+%   by zoptymalizować (i o~tym ze grupa ma tez wyliczoną średnią pozycje)
 % tu opisac logike wyswietlania
-\section{Ukrycie kluczy API w kodzie}
-% napisać że uzywam dwóch kluczy: do map i do warszawskiego api
-% że używam git'a do zarządzania zmianami w kodzie
-% i że klucze nalezy ukrywać w plikach np. .env
+\section{Radar}
+% napisać że zbiera linie z~przystanków które są^{}granicach radaru 
+Głównym celem radaru jest pokazywanie pinezek pojazdów linii z~poza ulubionych. Ogranicza on tez ilość
+pinezek do narysowania. Jest to bardzo ważne bo autobusów i~tramwajów w~Warszawie jest zbyt duża
+ilość by efektywnie pokazać je wszystkie na raz.
+
+Działanie radaru jest następujące:
+\begin{enumerate}
+  \item{Użytkownik za pomocą przycisku ustawia pozycje radaru na środku regionu mapy, który jest aktualnie wyświetlany}
+  \item{Dla każdego z~grup przystanków jest sprawdzane, czy średnia pozycja grupy jest w~promieniu radaru}
+  \item{Jeśli jest to wszystkie linie z~każdego przynkanka danej grupy są dodawane do zbioru linii radaru. Wszystkie elementy tego zbioru są unikalne}
+\end{enumerate}
+% tu napisać o~tym hacku z~firebasem (tu napisać ze ze względu na 573925 zapytań o~linie jakie są
+% na danym przystanku)
+\section{Ukrycie kluczy API w~kodzie}
+% napisać że uzywam dwóch kluczy: do map i~do warszawskiego api
+% że używam git'a do zarządzania zmianami w~kodzie
+% i~że klucze nalezy ukrywać w~plikach np. .env
 % potem że żeby dodac klucz map google do androidManifest użyłem pakietu dotenv
-% a ze do warsaw api poprzez BuildConfig z paczki react-native-config
+% a~ze do warsaw api poprzez BuildConfig z~paczki react-native-config
 
 
 
-\chapter{Podsumowanie i wnioski}
+\chapter{Podsumowanie i~wnioski}
 
 
 \begin{thebibliography}{9}
