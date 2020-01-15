@@ -40,10 +40,10 @@
 % po co taka aplikacja
 W dużych miastach komunikacja miejska jest kluczowym aspektem dla mieszkańców.
 Niestety duże miasta, w~tym Warszawa, boryka się z~korkami, wypadkami, robotami drogowymi i~innymi przez
-co autobusy czy tramwaje często nie jeżdżą według rozkładu jazdy. Dlatego dobrą informacją dla podróżującego
-jest lokalizacja GPS autobusu lub tramwaju. Warszawa udostępnia takie dane w~projekcie "Otwarte Dane" jednak są one
-w postaci nieczytelniej dla przeciętnego człowieka. Rozwiązaniem może być aplikacja mobilna,
-dzięki której użytkownik będzie widział na mapie kiedy dokładnie przyjedzie autobus lub tramwaj.
+co autobusy czy tramwaje często nie jeżdżą według rozkładu jazdy.
+Dlatego dobrą informacją dla podróżującego jest lokalizacja GPS autobusu lub tramwaju.
+Warszawa udostępnia takie dane w~projekcie "Otwarte Dane" jednak są one w postaci nieczytelniej dla przeciętnego człowieka.
+Rozwiązaniem może być aplikacja mobilna, dzięki której użytkownik będzie widział na mapie kiedy dokładnie przyjedzie autobus lub tramwaj.
 % Dzięki temu też będzie wiedział czy powinien się pospieszyć idąc na przystanek.
 \section{Założenia}
 % wymienić pare wymagań dla takiej aplikacji
@@ -64,34 +64,39 @@ Aplikacja powinna:
     \item{Ciemny}
   \end{itemize}
 \end{itemize}
+\vfill
+\pagebreak
 \section{Grafiki koncepcyjne}
 % wybrane chyba
 
 \chapter{Implementacja}
 % o~wybranym react nativie, o~paczce od map do reacta
-Do implementacji wybrałem React-Native stworzony przez Facebook. Pozwala on na zrobienie aplikacji na telefony
-z systemem Android oraz iOS przy pomocy jednego kodu źródłowego napisanego w~języku JavaScript XML
-(w skrócie JSX). Wybrałem także moduł react-native-maps, który jest odpowiedzialny za wyświetlanie
-mapy Google oraz sterowanie nią.
+Do implementacji wybrałem React-Native stworzony przez Facebook.
+Pozwala on na zrobienie aplikacji na telefony z systemem Android oraz iOS przy pomocy jednego kodu źródłowego napisanego w~języku JavaScript XML (w skrócie JSX).
+Skupie się jednak na wersji aplikacji na system Android.
+Wybrałem także moduł react-native-maps, który jest odpowiedzialny za wyświetlanie mapy Google oraz zarządzanie nią.
 
 \section{Publiczne API Warszawy}
 % TODO: odnośniki do plików dokumentacji tych endpointów
-Miasto udostępnia dane w~postaci publicznego API. Z~pośród wielu punktów końcowych tego API są dostępne:
+Miasto udostępnia dane w~postaci publicznego API.
+Z~pośród wielu punktów końcowych tego API są dostępne:
 \begin{itemize}
   \item{Pozycje pojazdów danej linii}
   \item{Zbiór linii, które odjeżdzają z~danego przystanku}
   \item{Rozkład jazdy dla danej linii z~danego przystanku}
   \item{Zbiór wszystkich przystanków}
 \end{itemize}
-Co ważne pozycje pojazdów są aktualizowane co 10 sekund i~też z~taką częstotliwością będą
-aktualizowane w~aplikacji.
+Co ważne pozycje pojazdów są aktualizowane co 10 sekund i~też z~taką częstotliwością będą aktualizowane w~aplikacji.
 Wszystkie z~wymienionych punktów końcowych API zaimplementowałem w~klasie \code{WarsawAPI}.
 
 
 \section{Komponent GlobalContextProvider}
 % TODO: odnośnik do Contextu w~React
-Stworzyłem komponent nadrzędny, przy pomocy kontekstu dostępnego w~React, odpowiedzialny za całą logike
-aplikacji.
+W React-Native wszystkie elementy, które wyświetlają się na ekranie są komponentami.
+Komponenty pomiędzy sobą są połączone relacją rodzic-dziecko.
+Niesie za sobą to pewne problemy.
+Jednym z nich jest tzw. prop-drilling. % czy wyjaśniać czym jest?
+By tego uniknąć użyłem kontekstu dostępnego w~React i stworzyłem komponent \code{GlobalContextProvider} odpowiedzialny za całą logike aplikacji.
 Komponent ten przechowuje zmienne:
 \begin{itemize}
   \item{Zbiór wszystkich przystanków}
@@ -101,15 +106,19 @@ Komponent ten przechowuje zmienne:
   \item{Pozycje radaru oraz jego promień}
   \item{Zaznaczony przystanek lub pojazd}
 \end{itemize}
-Oraz funkcje do modyfikacji zmiennych.
-Komponent też przechowuje referencje do komponentu mapy oraz udostępnia funkcje
-od sterowania nią.
+Oraz funkcje do modyfikacji tych zmiennych. %czy wymienić je? jest ich z 7
+Komponent też przechowuje referencje do komponentu mapy oraz udostępnia funkcje od sterowania nią:
+\begin{itemize}
+  \item{Dopasowanie regionu mapy do grupy przystanków}
+  \item{Wycentrowanie mapy na lokalizacji GPS użytkownika}
+  \item{Zaznaczenie pojazdu lub przystanku i wycentrowanie mapy na zaznaczoneniu}
+\end{itemize}
 
 Jednak nie umieściłem w~nim logiki aktualizowania pozycji pojazdów gdyż każda zmiana stanu
 tego komponentu powoduje przerysowanie wszystkich komponentów GlobalContext.Consumer, a~wraz nim wszystkich jego dzieci.
 Przez to, że ten komponent jest używany w~wielu miejscach to każda aktualizacja pozycji pojazdów, a~ta
-jest co 10 sekund, powodowałaby przerysowanie całej aplikacji. To wiązałoby się z~utratą na szybkości działania
-aplikacji.
+jest co 10 sekund, powodowałaby przerysowanie całej aplikacji.
+To wiązałoby się z~utratą na szybkości działania aplikacji.
 
 \section{Aktualizacja pozycji pojazdów}
 % napisać o~funkcji API której użyłem do tego celu
@@ -117,42 +126,76 @@ aplikacji.
 % odpytuje wszystkie linie z~ulubionych i~dodaje do wyniku wszystko
 % odpytuje wszystkie linie z~radaru, które nie są w~ulubionych i~dodaje tylko
 %   te, które są w~zasięgu radaru
-By aktualizacja przebiegała sprawnie wraz z~wyświetlaniem logike aktualizacji umieściłem w~komponencie GMap.
-Jest to komponent, który jako dziecko posiada tylko komponent map. Jest to ważne bo gdy tylko zmieni się stan
-komponentu GMap, a~ten będzie się zmieniał co 10 sekund, to wywoła to przerysowanie tylko komponentu map.
+By aktualizacja przebiegała sprawnie wraz z~wyświetlaniem logike aktualizacji umieściłem w~komponencie \code{GMap}.
+Jest to komponent, który jako dziecko posiada tylko komponent map.
+Jest to ważne bo gdy tylko zmieni się stan komponentu \code{GMap}, a~ten będzie się zmieniał co 10 sekund, to wywoła to przerysowanie tylko komponentu map.
 W tym komponencie zaimplementowałem funkcje, która:
 \begin{enumerate}
-  \item{Dla każdej ulubionej lub wykrytej przez radar linii są pobierane pozycje pojazdów tych linii}
+  \item{Dla każdej ulubionej lub wykrytej przez radar \ref{RADAR} linii są pobierane pozycje pojazdów tych linii}
   \item{Jako pojazdy do wyświetlenia są brane pod uwage tylko te pojazdy, które są z~linii ulubionej lub w~promieniu radaru oraz czas wysłania sygnału GPS nie jest starszy niż 6 minut}
 \end{enumerate}
-Funkcja ta jest uruchamiana co minute za pomocą funkcji \code{setTimeout} wbudowanej w~język JavaScript
+Funkcja ta jest uruchamiana co 10 sekund za pomocą funkcji \code{setTimeout} wbudowanej w~język JavaScript.
 
 \section{Pinezki przystanków}
+Wiedza o tym gdzie znajduje się przystanek jest bardzo ważna dla użytkownika.
+Jednak nie można ich wszystkich wyrenderować na mapie gdyż jest ich 6449 w sieci ZTM.
+Taka ilość praktycznie spowodowała by, że aplikacja nie nadawałaby się do użytku.
+Dlatego zoptymalizowałem to w następujący sposób.
+
+\label{FIREBASE}
 % pobieranie pliku z~firebasa, przygotowanego (tu o~grupach)
 % tu napisać ze odrazu ten plik już ma pogrupowane przystanki po id
 %   by zoptymalizować (i o~tym ze grupa ma tez wyliczoną średnią pozycje)
 % tu opisac logike wyswietlania
+Stworzyłem skrypt, który grupuje otrzymane przystanki z API Warszawy po numerze zespołu przystanka oraz wylicza średnią pozycje przystanków grupy.
+Wynik zapisuje do pliku \code{.json}.
+Ze względów optymalizacyjnych plik ten hostuje w serwisie Firebase.
+Na tym serwisie też stworzyłem punkt końcowy API, który zwraca ten plik.
+Aplikacja przy starcie pobiera ten plik.
+
+%napisać mechanizm wyswietlania, te zoomy itd
+
+
+\label{RADAR}
 \section{Radar}
-% napisać że zbiera linie z~przystanków które są^{}granicach radaru 
-Głównym celem radaru jest pokazywanie pinezek pojazdów linii z~poza ulubionych. Ogranicza on tez ilość
-pinezek do narysowania. Jest to bardzo ważne bo autobusów i~tramwajów w~Warszawie jest zbyt duża
-ilość by efektywnie pokazać je wszystkie na raz.
+% napisać że zbiera linie z~przystanków które są w granicach radaru 
+Głównym celem radaru jest pokazywanie pinezek pojazdów linii z~poza ulubionych.
+Ogranicza on tez ilość pinezek do narysowania.
+Autobusów i~tramwajów w~Warszawie jest zbyt duża ilość by efektywnie pokazać je wszystkie na raz na mapie dodałem do aplikacji funkcje radaru.
 
 Działanie radaru jest następujące:
 \begin{enumerate}
-  \item{Użytkownik za pomocą przycisku ustawia pozycje radaru na środku regionu mapy, który jest aktualnie wyświetlany}
+  \item{Użytkownik za pomocą przycisku w prawym dolnym rogu ustawia pozycje radaru na środku regionu mapy, który jest aktualnie wyświetlany}
   \item{Dla każdego z~grup przystanków jest sprawdzane, czy średnia pozycja grupy jest w~promieniu radaru}
-  \item{Jeśli jest to wszystkie linie z~każdego przynkanka danej grupy są dodawane do zbioru linii radaru. Wszystkie elementy tego zbioru są unikalne}
+  \item{Jeśli tak to wszystkie linie z~każdego przynkanka danej grupy są dodawane do zbioru linii radaru. Wszystkie elementy tego zbioru są unikalne.}
 \end{enumerate}
 % tu napisać o~tym hacku z~firebasem (tu napisać ze ze względu na 573925 zapytań o~linie jakie są
 % na danym przystanku)
+Podczas implementacji zauważyłem problem.
+Jeśli w granicach radaru jest $n$ przystanków to tyle samo będzie zapytań do API Warszawy o linie jakie odjeżdzają z danego przystanka.
+Czas wysłania i odbioru około średnio 40 zapytań był bardzo długi.
+Dlatego do skryptu i pliku opisanego w \ref{FIREBASE} dodałem pobieranie dla każdego przystanka wszystkich linii oraz zapis ich do pliku wynikowego.
+
 \section{Ukrycie kluczy API w~kodzie}
 % napisać że uzywam dwóch kluczy: do map i~do warszawskiego api
 % że używam git'a do zarządzania zmianami w~kodzie
 % i~że klucze nalezy ukrywać w~plikach np. .env
 % potem że żeby dodac klucz map google do androidManifest użyłem pakietu dotenv
 % a~ze do warsaw api poprzez BuildConfig z~paczki react-native-config
+W aplikacji używam dwóch API, Warszawy oraz map Google.
+Każde z nich wymaga klucza API.
+Te klucze powinny pozostać prywatne i niewidoczne w kodzie aplikacji.
+Dlatego by ukryć klucze stworzyłem plik \code{.env} w lokalizacji domowej projektu, w którym zdefiniowałem dwie zmienne środowiskowe:
+\code{WARSAW\_API\_KEY} oraz \code{GOOGLE\_MAPS\_API\_KEY} o odpowiednich wartościach. 
 
+Następnie w kodzie posługiwałem się zmienną \code{BuildConfig} z modułu \code{react-native-config} by otrzymać klucz API Warszawy,
+a klucz map Google, który wymaga umieszczenia w pliku \code{AndroidManifest.xml}, przy pomocy modułu \code{react-native-dotenv}.
+
+Po wykonaniu tych operacji można bezpiecznie użyć systemu kontroli wersji takiego jak "git" i serwisów jak Github do udostępniania kodu.
+Należy też dopisać lokalizacje pliku \code{.env} do pliku \code{.gitignore}.
+Teraz by było możliwe zbudowanie aplikacji w trybie debug należy wypełnić plik \code{.env.example} własnymi kluczami i zmenić jego nazwe na \code{.env}.
+
+\chapter{Użycie}
 
 
 \chapter{Podsumowanie i~wnioski}
