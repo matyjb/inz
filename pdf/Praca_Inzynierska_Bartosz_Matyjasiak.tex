@@ -13,6 +13,7 @@
 \pworkplace{Instytut Informatyki Technicznej\\Katedra Sztucznej Inteligencji}
 
 \usepackage{hyperref}
+\usepackage{graphicx}
 
 \begin{document}
 \maketitle
@@ -52,6 +53,7 @@ Rozwiązaniem może być aplikacja mobilna, dzięki której użytkownik będzie 
 % możliwość sprawdzenia rozkładu jazdy na danym przystanku
 % dodawanie do ulubionych ptzystanków i~linii
 Aplikacja powinna:
+\label{ZALOZENIA}
 \begin{itemize}
   \item{Pokazywać aktualne pozycje autobusów i~tramwajów na mapie}
   \item{Pokazywać pozycje przystanków na mapie}
@@ -67,7 +69,27 @@ Aplikacja powinna:
 \vfill
 \pagebreak
 \section{Grafiki koncepcyjne}
-% wybrane chyba
+By przybliżyć wizje projektu wykonałem grafiki koncepcyjne w programie Figma.
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=75mm]{koncepty/screen_day_click_stop}
+  \enspace
+  \includegraphics[width=75mm]{koncepty/screen_night_click_stop}
+  \caption[Ekran główny - koncept]{
+    \label{koncept.ekran_glowny}
+    Grafiki koncepcyjne ekranu głównego z wyświetlonym radarem, zaznaczonym przystankiem i przykładowymi autobusami. Od lewej: motyw jasny, motyw ciemny. \vspace{2ex}
+  }
+\end{figure}
+\begin{figure}
+  \centering
+  \includegraphics[width=75mm]{koncepty/screen_day_home_menu_click}
+  \enspace
+  \includegraphics[width=75mm]{koncepty/screen_night_home_menu_click}
+  \caption[Dolny przybornik]{
+    \label{koncept.dolny_przybornik}
+    Grafiki koncepcyjne dolnego przybornika z ulubionymi przystankami. Od lewej: motyw jasny, motyw ciemny. \vspace{2ex}
+  }
+\end{figure}
 
 \chapter{Implementacja}
 % o~wybranym react nativie, o~paczce od map do reacta
@@ -133,6 +155,7 @@ W tym komponencie zaimplementowałem funkcje, która:
 \begin{enumerate}
   \item{Dla każdej ulubionej lub wykrytej przez radar \ref{RADAR} linii są pobierane pozycje pojazdów tych linii}
   \item{Jako pojazdy do wyświetlenia są brane pod uwage tylko te pojazdy, które są z~linii ulubionej lub w~promieniu radaru oraz czas wysłania sygnału GPS nie jest starszy niż 6 minut}
+  \item{Aktualizuje stan komponentu \code{GMap} pobranymi pojazdami}
 \end{enumerate}
 Funkcja ta jest uruchamiana co 10 sekund za pomocą funkcji \code{setTimeout} wbudowanej w~język JavaScript.
 
@@ -149,11 +172,44 @@ Dlatego zoptymalizowałem to w następujący sposób.
 % tu opisac logike wyswietlania
 Stworzyłem skrypt, który grupuje otrzymane przystanki z API Warszawy po numerze zespołu przystanka oraz wylicza średnią pozycje przystanków grupy.
 Wynik zapisuje do pliku \code{.json}.
-Ze względów optymalizacyjnych plik ten hostuje w serwisie Firebase.
+Ze względów optymalizacyjnych i możliwej przyszłej rozbudowy aplikacji plik ten hostuje w serwisie Firebase.
 Na tym serwisie też stworzyłem punkt końcowy API, który zwraca ten plik.
-Aplikacja przy starcie pobiera ten plik.
+Aplikacja przy uruchomieniu pobiera ten plik.
 
 %napisać mechanizm wyswietlania, te zoomy itd
+Dzięki zmiennej \code{mapRegion} dostępnej w komponencie \code{GMap} moge ograniczyć pinezki do wyświetlenia.
+Zmienna \code{mapRegion} przechowuje aktualnie wyświetlany region mapy i posiada cztery następujące wartości:
+\begin{itemize}
+  \item{\code{latitude} -- szerokość geograficzna w centrum wyświetlanego regionu mapy}
+  \item{\code{longitude} -- długość geograficzna w centrum wyświetlanego regionu mapy}
+  \item{\code{latitudeDelta -- różnica szerokości geografinczych od lewej krawędzi mapy do prawej}}
+  \item{\code{longitudeDelta -- różnica długości geografinczych od górnej krawędzi mapy do dolnej}}
+\end{itemize}
+Używając tych czterech wartości można przefiltrować pinezki i wyświetlić tylko te, które są w obrębie \code{mapRegion}.
+Ponieważ, że zmienna \code{mapRegion} aktualizowana jest tylko kiedy manipulacja mapą (przesuwanie, obracanie itp.) zostanie zakończone to użytkownik nie zobaczy pinezek,
+które w trakcie ruchu weszły w obręb wyświetlanego regionu mapy.
+By to rozwiązać do filtracji pinezek używam czterokrotnie większego pola niż pole wyznaczone przez \code{mapRegion}
+
+By jeszcze bardziej ograniczyć ilość pinezek stworzyłem trzy progi wyświetlania zależne od wartości \code{latitudeDelta}:
+\begin{enumerate}
+  \item{$[0;0.02)$ -- wyświetla pinezki pojedyńczych przystanków}
+  \item{$[0.02; 0.035)$ -- wyświetla pinezki grup przystanków}
+  \item{$[0.035;\infty)$ -- nie wyświetla żadnych pinezek przystanków}
+\end{enumerate}
+
+
+Pinezki przystanków i grup przystanków różnią się tylko wielkością.
+Kliknięcie w pinezke grupy przystanków dopasuje wyświetlany region mapy do wszystkich przystanków w grupie.
+\begin{figure}
+  \centering
+  \includegraphics[width=15mm]{screeny/busstop_jasny}
+  \enspace\enspace
+  \includegraphics[width=15mm]{screeny/busstop_ciemny}
+  \caption[Pinezki przystanków]{
+    \label{screen.topbox}
+    Pinezki przystanków lub grup przystanków. Od lewej: motyw jasny, motyw ciemny. \vspace{2ex}
+  }
+\end{figure}
 
 
 \label{RADAR}
@@ -176,6 +232,8 @@ Jeśli w granicach radaru jest $n$ przystanków to tyle samo będzie zapytań do
 Czas wysłania i odbioru około średnio 40 zapytań był bardzo długi.
 Dlatego do skryptu i pliku opisanego w \ref{FIREBASE} dodałem pobieranie dla każdego przystanka wszystkich linii oraz zapis ich do pliku wynikowego.
 
+
+
 \section{Ukrycie kluczy API w~kodzie}
 % napisać że uzywam dwóch kluczy: do map i~do warszawskiego api
 % że używam git'a do zarządzania zmianami w~kodzie
@@ -192,13 +250,44 @@ Następnie w kodzie posługiwałem się zmienną \code{BuildConfig} z modułu \c
 a klucz map Google, który wymaga umieszczenia w pliku \code{AndroidManifest.xml}, przy pomocy modułu \code{react-native-dotenv}.
 
 Po wykonaniu tych operacji można bezpiecznie użyć systemu kontroli wersji takiego jak "git" i serwisów jak Github do udostępniania kodu.
-Należy też dopisać lokalizacje pliku \code{.env} do pliku \code{.gitignore}.
+Należy też dodać lokalizacje pliku \code{.env} do pliku \code{.gitignore}.
 Teraz by było możliwe zbudowanie aplikacji w trybie debug należy wypełnić plik \code{.env.example} własnymi kluczami i zmenić jego nazwe na \code{.env}.
 
-\chapter{Użycie}
+\section{Rozkłady jazdy}
+By stworzyć możliwość zobaczenia rozkładu jazdy dla danego przystanka postanowiłem dodać przycisk w postaci ikony w kontenerze u góry ekranu po zaznaczeniu przystanka jak na rysunku \ref{screen.topbox}.
+Po naciśnięciu aplikacja zmienia widok na liste odjazdów dla każdej z linii tak jak na grafice \ref{screen.rozklad_jazdy}.
+Na grafikach można zauważyć, że dodałem informacje na temat ile czasu zostało do następnego odjazdu autobusu lub tramwaju.
+Jest to czas z zaokrągleniem minut w dół.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=75mm]{screeny/topbox_jasny}
+  \enspace
+  \includegraphics[width=75mm]{screeny/topbox_ciemny}
+  \caption[Górny kontener]{
+    \label{screen.topbox}
+    Górny kontener prezentujący informacje o zaznaczonym przystanku. Od lewej: motyw jasny, motyw ciemny. \vspace{2ex}
+  }
+\end{figure}
+\begin{figure}
+  \centering
+  \includegraphics[width=75mm]{screeny/rozklad_jasny}
+  \enspace
+  \includegraphics[width=75mm]{screeny/rozklad_ciemny}
+  \caption[Rozkład jazdy]{
+    \label{screen.rozklad_jazdy}
+    Zrzut ekranu rozkładu jazdy. Od lewej: motyw jasny, motyw ciemny. \vspace{2ex}
+  }
+\end{figure}
+
+
 
 
 \chapter{Podsumowanie i~wnioski}
+Stworzono aplikacje mobilną spełniającą założenia przedstawione w \ref{ZALOZENIA}.
+Funkcje aplikacji pozwalają na szybkie korzystanie z aplikacji przez użytkownika po dodaniu linii i przystanków do ulubionych.
+Aplikacja posiada też spore możliwości rozwoju takie jak przewidywanie czasów przyjazdu, kupowanie biletów lub wyswietlanie tras przejazdu danych linii autobusowych lub tramwajowych.
+Dzięki zastosowanej technologii React-Native aplikacja ma możliwość rozbudowy na systemy iOS.
+
 
 
 \begin{thebibliography}{9}
