@@ -14,6 +14,7 @@
 
 \usepackage{hyperref}
 \usepackage{graphicx}
+\bibliographystyle{plain}
 
 \begin{document}
 \maketitle
@@ -43,7 +44,7 @@ W dużych miastach komunikacja miejska jest kluczowym aspektem dla mieszkańców
 Niestety duże miasta, w~tym Warszawa, boryka się z~korkami, wypadkami, robotami drogowymi i~innymi problemami przez
 co autobusy czy tramwaje często nie jeżdżą dokładnie według rozkładu jazdy.
 Dlatego dobrą informacją dla podróżującego jest lokalizacja GPS autobusu lub tramwaju.
-Warszawa udostępnia takie dane w~projekcie "Otwarte Dane" jednak są one w postaci nieczytelniej dla przeciętnego człowieka.
+Warszawa udostępnia takie dane w~projekcie "Otwarte Dane" \cite{APIWARSZAWA} jednak są one w postaci nieczytelniej dla przeciętnego człowieka.
 Rozwiązaniem może być aplikacja mobilna, dzięki której użytkownik będzie widział na mapie, kiedy dokładnie przyjedzie autobus lub tramwaj.
 % Dzięki temu też będzie wiedział czy powinien się pospieszyć idąc na przystanek.
 \section{Założenia}
@@ -94,10 +95,10 @@ Są to rys.~\ref{koncept.ekran_glowny} i~rys.~\ref{koncept.dolny_przybornik}.
 
 \chapter{Implementacja}
 % o~wybranym react nativie, o~paczce od map do reacta
-Do implementacji wybrałem \textit{framework} React-Native stworzony przez firme Facebook.
+Do implementacji wybrałem \textit{framework} React-Native stworzony przez firme Facebook\cite{REACT}.
 Pozwala on na zrobienie aplikacji na telefony z systemem Android oraz iOS przy pomocy jednego kodu źródłowego napisanego w~języku JavaScript XML (w skrócie JSX).
 Skupie się jednak na wersji aplikacji na system Android.
-Wybrałem także moduł \code{react-native-maps}, który jest odpowiedzialny za wyświetlanie mapy Google oraz zarządzanie nią.
+Wybrałem także moduł \code{react-native-maps}~\cite{REACTMAPS}, który jest odpowiedzialny za wyświetlanie mapy Google oraz zarządzanie nią.
 
 \section{Publiczne API Warszawy}
 % TODO: odnośniki do plików dokumentacji tych endpointów
@@ -162,7 +163,7 @@ Funkcja ta jest uruchamiana co 10 sekund za pomocą funkcji \code{setTimeout} wb
 
 \section{Pinezki przystanków}
 Wiedza o tym gdzie znajduje się przystanek jest bardzo ważna dla użytkownika.
-Jednak nie można ich wszystkich wyrenderować na mapie gdyż jest ich 6449 w sieci ZTM.
+Jednak nie można ich wszystkich wyrenderować na mapie gdyż jest ich 6449 w sieci ZTM (stan na sierpień 2019~\cite{ZTMSTATS}).
 Taka ilość praktycznie spowodowała by, że aplikacja nie nadawałaby się do użytku.
 Dlatego zoptymalizowałem to w następujący sposób.
 
@@ -248,8 +249,8 @@ Te klucze powinny pozostać prywatne i niewidoczne w kodzie aplikacji.
 Dlatego by ukryć klucze stworzyłem plik \code{.env} w lokalizacji domowej projektu, w którym zdefiniowałem dwie zmienne środowiskowe:
 \code{WARSAW\_API\_KEY} oraz \code{GOOGLE\_MAPS\_API\_KEY} o odpowiednich wartościach. 
 
-Następnie w kodzie posługiwałem się zmienną \code{BuildConfig} z modułu \code{react-native-config} by otrzymać klucz API Warszawy,
-a klucz map Google, który wymaga umieszczenia w pliku \code{AndroidManifest.xml}, przy pomocy modułu \code{react-native-dotenv}.
+Następnie w kodzie posługiwałem się zmienną \code{BuildConfig} z modułu \code{react-native-config}~\cite{REACTCONFIG} by otrzymać klucz API Warszawy,
+a klucz map Google, który wymaga umieszczenia w pliku \code{AndroidManifest.xml}, przy pomocy modułu \code{react-native-dotenv}~\cite{REACTDOTENV}.
 
 Po wykonaniu tych operacji można bezpiecznie użyć systemu kontroli wersji takiego jak "git" i serwisów jak Github do udostępniania kodu.
 Należy też dodać lokalizacje pliku \code{.env} do pliku \code{.gitignore}.
@@ -301,15 +302,7 @@ Dzięki zastosowanej technologii React-Native aplikacja ma możliwość rozbudow
   }
 \end{figure}
 
-
-\begin{thebibliography}{9}
-  % dokumentacja react-native
-  % react-native-maps
-  % api warszawy
-  % biuletyn ztm ze statystykami
-  % react-native-config
-  % react-native-dotenv
-\end{thebibliography}
+\bibliography{bib0}
 
 \beforelastpage
 
