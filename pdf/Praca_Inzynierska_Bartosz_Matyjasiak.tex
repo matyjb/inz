@@ -237,31 +237,12 @@ Dlatego do skryptu i pliku opisanego w \ref{FIREBASE} dodałem pobieranie dla ka
 
 
 
-\section{Ukrycie kluczy API w~kodzie}
-% napisać że uzywam dwóch kluczy: do map i~do warszawskiego api
-% że używam git'a do zarządzania zmianami w~kodzie
-% i~że klucze nalezy ukrywać w~plikach np. .env
-% potem że żeby dodac klucz map google do androidManifest użyłem pakietu dotenv
-% a~ze do warsaw api poprzez BuildConfig z~paczki react-native-config
-W aplikacji używam dwóch API, Warszawy oraz map Google.
-Każde z nich wymaga klucza API.
-Te klucze powinny pozostać prywatne i niewidoczne w kodzie aplikacji.
-Dlatego by ukryć klucze stworzyłem plik \code{.env} w lokalizacji domowej projektu, w którym zdefiniowałem dwie zmienne środowiskowe:
-\code{WARSAW\_API\_KEY} oraz \code{GOOGLE\_MAPS\_API\_KEY} o odpowiednich wartościach. 
-
-Następnie w kodzie posługiwałem się zmienną \code{BuildConfig} z modułu \code{react-native-config}~\cite{REACTCONFIG} by otrzymać klucz API Warszawy,
-a klucz map Google, który wymaga umieszczenia w pliku \code{AndroidManifest.xml}, przy pomocy modułu \code{react-native-dotenv}~\cite{REACTDOTENV}.
-
-Po wykonaniu tych operacji można bezpiecznie użyć systemu kontroli wersji takiego jak "git" i serwisów jak Github do udostępniania kodu.
-Należy też dodać lokalizacje pliku \code{.env} do pliku \code{.gitignore}.
-Teraz by było możliwe zbudowanie aplikacji w trybie debug należy wypełnić plik \code{.env.example} własnymi kluczami i zmienić jego nazwe na \code{.env}.
-
 \section{Rozkłady jazdy}
 By stworzyć możliwość sprawdzenia rozkładu jazdy dla danego przystanka postanowiłem dodać przycisk w postaci ikony w kontenerze u góry ekranu po zaznaczeniu przystanka (patrz rys.~\ref{screen.topbox}).
 Po naciśnięciu aplikacja zmienia widok na liste odjazdów dla każdej z linii (patrz rys.~\ref{screen.rozklad_jazdy}).
 Na rysunkach można zauważyć, że dodałem informacje na temat ile czasu zostało do następnego odjazdu autobusu lub tramwaju.
 Jest to czas z zaokrągleniem do minut w dół obliczony na podstawie rozkładu jazdy.
-\begin{figure}[b]
+\begin{figure}[!htb]
   \centering
   \includegraphics[width=75mm]{screeny/topbox_jasny}
   \enspace
@@ -271,7 +252,7 @@ Jest to czas z zaokrągleniem do minut w dół obliczony na podstawie rozkładu 
     Górny kontener prezentujący informacje o zaznaczonym przystanku. Od lewej: motyw jasny, motyw ciemny. \vspace{2ex}
   }
 \end{figure}
-\begin{figure}
+\begin{figure}[!htb]
   \centering
   \includegraphics[width=75mm]{screeny/rozklad_jasny}
   \enspace
@@ -283,6 +264,24 @@ Jest to czas z zaokrągleniem do minut w dół obliczony na podstawie rozkładu 
 \end{figure}
 
 
+
+\section{Ukrycie kluczy API w~kodzie}
+% napisać że uzywam dwóch kluczy: do map i~do warszawskiego api
+% że używam git'a do zarządzania zmianami w~kodzie
+% i~że klucze nalezy ukrywać w~plikach np. .env
+% a~ze do warsaw api poprzez BuildConfig z~paczki react-native-config
+W aplikacji używam dwóch API, Warszawy oraz map Google.
+Każde z nich wymaga klucza API.
+Te klucze powinny pozostać prywatne i niewidoczne w kodzie aplikacji.
+Dlatego by ukryć klucze stworzyłem plik \code{.env} w lokalizacji domowej projektu, w którym zdefiniowałem dwie zmienne środowiskowe:
+\code{WARSAW\_API\_KEY} oraz \code{GOOGLE\_MAPS\_API\_KEY} o odpowiednich wartościach.
+
+Następnie w kodzie posługiwałem się zmienną \code{BuildConfig} z modułu \code{react-native-config}~\cite{REACTCONFIG} by otrzymać klucz API Warszawy,
+a klucz map Google, należało umieścić w pliku \code{AndroidManifest.xml} przy pomocy odwołania do zmiennych srodowiskowych po uprzedniej konfiguracji modułu \code{react-native-config}.
+
+Po wykonaniu tych operacji można bezpiecznie użyć systemu kontroli wersji takiego jak "git" i serwisów jak Github do udostępniania kodu.
+Należy też dodać lokalizacje pliku \code{.env} do pliku \code{.gitignore}.
+Teraz by było możliwe zbudowanie aplikacji w trybie debug należy wypełnić plik \code{.env.example} własnymi kluczami i zmienić jego nazwe na \code{.env}.
 
 
 \chapter{Podsumowanie i~wnioski}
