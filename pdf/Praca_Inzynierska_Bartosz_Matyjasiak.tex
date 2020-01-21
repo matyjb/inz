@@ -50,22 +50,22 @@ W dużych miastach komunikacja miejska jest kluczowym aspektem dla mieszkańców
 Niestety duże miasta, w~tym Warszawa, boryka się z~korkami, wypadkami, robotami drogowymi i~innymi problemami przez
 co autobusy czy tramwaje często nie jeżdżą dokładnie według rozkładu jazdy.
 Dlatego dobrą informacją dla podróżującego jest lokalizacja GPS autobusu lub tramwaju.
-Warszawa udostępnia takie dane w~projekcie "Otwarte Dane" \cite{APIWARSZAWA} jednak są one w~postaci nieczytelniej dla przeciętnego człowieka.
+Warszawa udostępnia takie dane w~projekcie "Otwarte Dane" \cite{APIWARSZAWA} jednak są one w~postaci nieczytelnej dla przeciętnego człowieka.
 Rozwiązaniem może być aplikacja mobilna, dzięki której użytkownik będzie widział na mapie, kiedy dokładnie przyjedzie autobus lub tramwaj.
-% Dzięki temu też będzie wiedział czy powinien się pospieszyć idąc na przystanek.
+% Dzięki temu też będzie wiedział, czy powinien się pospieszyć idąc na przystanek.
 \section{Założenia}
-% wymienić pare wymagań dla takiej aplikacji
+% wymienić parę wymagań dla takiej aplikacji
 % motywy
 % aktualne pozycje 
 % możliwość sprawdzenia rozkładu jazdy na danym przystanku
-% dodawanie do ulubionych ptzystanków i~linii
+% dodawanie do ulubionych przystanków i~linii
 Aplikacja powinna:
 \label{ZALOZENIA}
 \begin{itemize}
   \item{pokazywać aktualne pozycje autobusów i~tramwajów na mapie,}
   \item{pokazywać pozycje przystanków na mapie,}
   \item{udostępniać rozkłady jazdy na każdym z~przystanków,}
-  \item{umożliwiać na dodanie linii autobusówej lub tranwajowej do ulubionych,}
+  \item{umożliwiać na dodanie linii autobusowej lub tramwajowej do ulubionych,}
   \item{umożliwiać na dodanie przystanku do ulubionych,}
   \item{wspierać dwa motywy:}
   \begin{itemize}
@@ -102,7 +102,7 @@ Są to rys.~\ref{koncept.ekran_glowny} i~rys.~\ref{koncept.dolny_przybornik}.
 \chapter{Implementacja}
 % o~wybranym react nativie, o~paczce od map do reacta
 Do implementacji wybrałem \textit{framework} React-Native stworzony przez firmę Facebook~\cite{REACT}.
-Pozwala on na zrobienie aplikacji na telefony z~systemem Android oraz iOS przy pomocy jednego kodu źródłowego napisanego w~języku JavaScript XML (w skrócie JSX).
+Pozwala on na stworzenie aplikacji mobilnej z~systemem Android lub iOS przy pomocy jednego kodu źródłowego w~języku JavaScript XML (w skrócie JSX).
 Skupie się jednak na wersji aplikacji na system Android.
 Wybrałem także moduł \code{react-native-maps}~\cite{REACTMAPS}, który jest odpowiedzialny za wyświetlanie mapy Google oraz zarządzanie nią.
 
@@ -112,7 +112,7 @@ Miasto udostępnia dane w~postaci publicznego API.
 Z~pośród wielu punktów końcowych interfejsu API Warszawy są dostępne:
 \begin{itemize}
   \item{pozycje pojazdów danej linii;}
-  \item{zbiór linii, które odjeżdzają z~danego przystanku;}
+  \item{zbiór linii, które odjeżdżają z~danego przystanku;}
   \item{rozkład jazdy dla danej linii z~danego przystanku;}
   \item{zbiór wszystkich przystanków.}
 \end{itemize}
@@ -126,7 +126,7 @@ W React-Native wszystkie elementy, które wyświetlają się na ekranie są komp
 Komponenty pomiędzy sobą są połączone relacją rodzic-dziecko.
 Niesie za sobą to pewne problemy.
 Jednym z~nich jest tzw.~\textit{prop-drilling}. % czy wyjaśniać czym jest?
-By tego uniknąć użyłem kontekstu dostępnego w~React i~stworzyłem komponent \code{GlobalContextProvider} odpowiedzialny za całą logike aplikacji.
+By tego uniknąć użyłem kontekstu dostępnego w~React i~stworzyłem komponent \code{GlobalContextProvider} odpowiedzialny za całą logikę aplikacji.
 Komponent ten przechowuje zmienne:
 \begin{itemize}
   \item{zbiór wszystkich przystanków,}
@@ -144,7 +144,7 @@ Komponent też przechowuje referencje do komponentu mapy oraz udostępnia funkcj
   \item{Zaznaczenie pojazdu lub przystanku i~wycentrowanie mapy na zaznaczoneniu.}
 \end{itemize}
 
-Jednak nie umieściłem w~nim logiki aktualizowania pozycji pojazdów gdyż każda zmiana stanu
+Jednak nie umieściłem w~nim logiki aktualizowania pozycji pojazdów, gdyż każda zmiana stanu
 tego komponentu powoduje ponowne wyrenderowanie wszystkich komponentów \code{GlobalContext.Consumer}, a~wraz nim wszystkich jego dzieci.
 Przez to, że ten komponent jest używany w~wielu miejscach to każda aktualizacja pozycji pojazdów, a~ta
 jest co 10 sekund, powodowałaby ponowne wyrenderowanie całej aplikacji.
@@ -156,20 +156,20 @@ To wiązałoby się z~utratą na szybkości działania.
 % odpytuje wszystkie linie z~ulubionych i~dodaje do wyniku wszystko
 % odpytuje wszystkie linie z~radaru, które nie są w~ulubionych i~dodaje tylko
 %   te, które są w~zasięgu radaru
-By aktualizacja przebiegała sprawnie wraz z~wyświetlaniem logike aktualizacji umieściłem w~komponencie \code{GMap}.
+By aktualizacja przebiegała sprawnie wraz z~wyświetlaniem logikę aktualizacji umieściłem w~komponencie \code{GMap}.
 Jest to komponent, który jako dziecko posiada tylko komponent mapy.
 Jest to ważne bo gdy tylko zmieni się stan komponentu \code{GMap}, a~ten będzie się zmieniał co 10 sekund, to wywoła to ponowne wyrenderowanie tylko komponentu map.
 W tym komponencie zaimplementowałem funkcje, która:
 \begin{enumerate}
   \item{dla każdej ulubionej lub wykrytej przez radar (opisany w~\ref{RADAR}) linii są pobierane pozycje pojazdów tych linii;}
-  \item{jako pojazdy do wyświetlenia są brane pod uwage tylko te pojazdy, które są z~linii ulubionej lub w~promieniu radaru oraz czas wysłania sygnału GPS nie jest starszy niż 6 minut;}
+  \item{jako pojazdy do wyświetlenia są brane pod uwagę tylko te pojazdy, które są z~linii ulubionej lub w~promieniu radaru oraz czas wysłania sygnału GPS nie jest starszy niż 6 minut;}
   \item{aktualizuje stan komponentu \code{GMap} pobranymi pojazdami.}
 \end{enumerate}
 Funkcja ta jest uruchamiana co 10 sekund za pomocą funkcji \code{setTimeout} wbudowanej w~język JavaScript.
 
 \section{Pinezki przystanków}
-Wiedza o~tym gdzie znajduje się przystanek jest bardzo ważna dla użytkownika.
-Jednak nie można ich wszystkich wyrenderować na mapie gdyż jest ich 6449 w~sieci ZTM (stan na sierpień 2019~\cite{ZTMSTATS}).
+Wiedza o~tym, gdzie znajduje się przystanek jest bardzo ważna dla użytkownika.
+Jednak nie można ich wszystkich wyrenderować na mapie gdyż jest ich 6449 w~sieci ZTM (stan na sierpień~2019~\cite{ZTMSTATS}).
 Taka ilość praktycznie spowodowała by, że aplikacja nie nadawałaby się do użytku.
 Dlatego zoptymalizowałem to w~następujący sposób.
 
@@ -190,8 +190,8 @@ Zmienna \code{mapRegion} przechowuje aktualnie wyświetlany region mapy i~posiad
 \begin{itemize}
   \item{\code{latitude} -- szerokość geograficzna w~centrum wyświetlanego regionu mapy,}
   \item{\code{longitude} -- długość geograficzna w~centrum wyświetlanego regionu mapy,}
-  \item{\code{latitudeDelta} -- różnica szerokości geografinczych od lewej krawędzi mapy do prawej,}
-  \item{\code{longitudeDelta} -- różnica długości geografinczych od górnej krawędzi mapy do dolnej.}
+  \item{\code{latitudeDelta} -- różnica szerokości geograficznych od lewej krawędzi mapy do prawej,}
+  \item{\code{longitudeDelta} -- różnica długości geograficznych od górnej krawędzi mapy do dolnej.}
 \end{itemize}
 Używając tych czterech wartości można przefiltrować pinezki i~wyświetlić tylko te, które są w~obrębie \code{mapRegion}.
 Ponieważ, że zmienna \code{mapRegion} aktualizowana jest tylko kiedy manipulacja mapą (przesuwanie, obracanie itp.) zostanie zakończone to użytkownik nie zobaczy pinezek,
@@ -200,15 +200,15 @@ By polepszyć doświadczenie użytkownika (ang.~\textit{user experience}) do fil
 
 By jeszcze bardziej ograniczyć ilość pinezek stworzyłem trzy progi wyświetlania zależne od wartości \code{latitudeDelta}:
 \begin{enumerate}
-  \item{$[0;0.02)$ -- wyświetla pinezki pojedyńczych przystanków,}
+  \item{$[0;0.02)$ -- wyświetla pinezki pojedynczych przystanków,}
   \item{$[0.02; 0.035)$ -- wyświetla pinezki grup przystanków,}
   \item{$[0.035;\infty)$ -- nie wyświetla żadnych pinezek przystanków.}
 \end{enumerate}
 
 
 Pinezki przystanków i~grup przystanków różnią się tylko wielkością oraz wyglądają jak na rys.~\ref{screen.pin_przystanki}.
-Kliknięcie w~pinezke grupy przystanków dopasuje wyświetlany region mapy do wszystkich przystanków w~grupie,
-a~w~pinezke pojedyńczego przystanku zaznaczy go.
+Kliknięcie w~pinezkę grupy przystanków dopasuje wyświetlany region mapy do wszystkich przystanków w~grupie,
+a~w~pinezkę pojedynczego przystanku zaznaczy go.
 \begin{figure}
   \centering
   \includegraphics[width=15mm]{screeny/busstop_jasny}
@@ -223,7 +223,7 @@ a~w~pinezke pojedyńczego przystanku zaznaczy go.
 
 \label{RADAR}
 \section{Radar}
-% napisać że zbiera linie z~przystanków które są w~granicach radaru 
+% napisać, że zbiera linie z~przystanków które są w~granicach radaru 
 Autobusów i~tramwajów w~Warszawie jest zbyt duża ilość by efektywnie pokazać je wszystkie na raz na mapie, więc dodałem do aplikacji funkcje radaru.
 Głównym celem radaru jest pokazywanie pinezek pojazdów linii z~poza ulubionych.
 Ogranicza on też ilość pinezek do narysowania.
@@ -237,7 +237,7 @@ Działanie radaru jest następujące:
 % tu napisać o~tym hacku z~firebasem (tu napisać ze ze względu na 573925 zapytań o~linie jakie są
 % na danym przystanku)
 Podczas implementacji zauważyłem problem.
-Jeśli w~granicach radaru jest $n$ przystanków to tyle samo będzie zapytań do API Warszawy o~linie jakie odjeżdzają z~danego przystanka.
+Jeśli w~granicach radaru jest $n$ przystanków to tyle samo będzie zapytań do API Warszawy o~linie jakie odjeżdżają z~danego przystanka.
 Czas wysłania i~odbioru około średnio 40 zapytań był bardzo długi.
 Dlatego do skryptu i~pliku opisanego w~\ref{FIREBASE} dodałem pobieranie dla każdego przystanka wszystkich linii oraz zapis ich do pliku wynikowego.
 
@@ -246,7 +246,7 @@ Dlatego do skryptu i~pliku opisanego w~\ref{FIREBASE} dodałem pobieranie dla ka
 \section{Rozkłady jazdy}
 By stworzyć możliwość sprawdzenia rozkładu jazdy dla danego przystanka postanowiłem dodać przycisk w~postaci ikony w~kontenerze u~góry ekranu po zaznaczeniu przystanka (patrz rys.~\ref{screen.topbox}).
 Po naciśnięciu aplikacja zmienia widok na liste odjazdów dla każdej z~linii (patrz rys.~\ref{screen.rozklad_jazdy}).
-Na rysunkach można zauważyć, że dodałem informacje na temat ile czasu zostało do następnego odjazdu autobusu lub tramwaju.
+Na rysunkach można zauważyć, że dodałem informacje na temat, ile czasu zostało do następnego odjazdu autobusu lub tramwaju.
 Jest to czas z~zaokrągleniem do minut w~dół obliczony na podstawie rozkładu jazdy.
 \begin{figure}[!htb]
   \centering
@@ -271,7 +271,7 @@ Jest to czas z~zaokrągleniem do minut w~dół obliczony na podstawie rozkładu 
 
 
 
-\section{Ukrycie kluczy API w~kodzie}
+\section{Ukrycie kluczy API}
 % napisać że uzywam dwóch kluczy: do map i~do warszawskiego api
 % że używam git'a do zarządzania zmianami w~kodzie
 % i~że klucze nalezy ukrywać w~plikach np. .env
@@ -283,9 +283,9 @@ Dlatego by ukryć klucze stworzyłem plik \code{.env} w~lokalizacji domowej proj
 \code{WARSAW\_API\_KEY} oraz \code{GOOGLE\_MAPS\_API\_KEY} o~odpowiednich wartościach.
 
 Następnie w~kodzie posługiwałem się zmienną \code{BuildConfig} z~modułu \code{react-native-config}~\cite{REACTCONFIG} by otrzymać klucz API Warszawy,
-a klucz map Google, należało umieścić w~pliku \code{AndroidManifest.xml} przy pomocy odwołania do zmiennych środowiskowych po uprzedniej konfiguracji modułu \code{react-native-config}.
+a klucz map Google, należało umieścić w~pliku \code{AndroidManifest.xml} przy pomocy odwołania do zmiennych środowiskowych (ang.~\textit{build variables}) po uprzedniej konfiguracji modułu \code{react-native-config} i zmiennych w pliku \code{build.gradle}.
 
-Po wykonaniu tych operacji można bezpiecznie użyć systemu kontroli wersji takiego jak "git" i~serwisów jak Github do udostępniania kodu.
+Po wykonaniu tych operacji można bezpiecznie użyć systemu kontroli (np.~"git") i~serwisów jak GitHub do udostępniania kodu.
 Należy też dodać lokalizacje pliku \code{.env} do pliku \code{.gitignore}.
 Teraz by było możliwe zbudowanie aplikacji w~trybie debug należy wypełnić plik \code{.env.example} własnymi kluczami i~zmienić jego nazwę na \code{.env}.
 
