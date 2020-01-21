@@ -3,13 +3,13 @@
 \title{Projekt i~implementacja aplikacji mobilnej wyświetlającej aktualne lokalizacje autobusów oraz tramwajów w~Warszawie}
 \Etitle{Project and implementation of mobile application displaying present locations of busses and trams in Warsaw}
 \author{Bartosz Matyjasiak}
-\date{2020\footnote{Dokument skompilowano z~klasą {\tt SGGW-thesis} w~wersji 1.05. Aktualną wersję klasy można pobrać ze strony \url{http://stud.lchmiel.pl} $\rightarrow$ Seminarium dyplomowe.}}
+\date{2020}
 \university{Szkoła Główna Gospodarstwa Wiejskiego\\w Warszawie}
 \dep{Instytut Informatyki Technicznej}
 \album{185117}
 \thesis{Praca dyplomowa inżynierska}
 \course{Informatyka}
-\promotor{dr.\ hab.\ inż.\ Leszek Chmielewski, prof.\ SGGW}
+\promotor{dr\ hab.\ inż.\ Leszek Chmielewski, prof.\ SGGW}
 \pworkplace{Instytut Informatyki Technicznej\\Katedra Sztucznej Inteligencji}
 
 \usepackage{hyperref}
@@ -47,10 +47,10 @@ The thesis consists implementation descriptions of most important aspects of tha
 \chapter{Wstęp}
 % po co taka aplikacja
 W dużych miastach komunikacja miejska jest kluczowym aspektem dla mieszkańców.
-Niestety duże miasta, w~tym Warszawa, boryka się z~korkami, wypadkami, robotami drogowymi i~innymi problemami przez
+Niestety duże miasta, w~tym Warszawa, boryka się z~korkami, wypadkami, robotami drogowymi i~innymi problemami, przez
 co autobusy czy tramwaje często nie jeżdżą dokładnie według rozkładu jazdy.
 Dlatego dobrą informacją dla podróżującego jest lokalizacja GPS autobusu lub tramwaju.
-Warszawa udostępnia takie dane w~projekcie "Otwarte Dane" \cite{APIWARSZAWA} jednak są one w~postaci nieczytelnej dla przeciętnego człowieka.
+Warszawa udostępnia takie dane w~projekcie ,,Otwarte Dane''~\cite{APIWARSZAWA}, jednak są one w~postaci nieczytelnej dla przeciętnego człowieka.
 Rozwiązaniem może być aplikacja mobilna, dzięki której użytkownik będzie widział na mapie, kiedy dokładnie przyjedzie autobus lub tramwaj.
 % Dzięki temu też będzie wiedział, czy powinien się pospieszyć idąc na przystanek.
 \section{Założenia}
@@ -77,7 +77,7 @@ Aplikacja powinna:
 \pagebreak
 \section{Grafiki koncepcyjne}
 By przybliżyć wizje projektu wykonałem grafiki koncepcyjne w~programie Figma.
-Są to rys.~\ref{koncept.ekran_glowny} i~rys.~\ref{koncept.dolny_przybornik}.
+Są to Rys.~\ref{koncept.ekran_glowny} i~Rys.~\ref{koncept.dolny_przybornik}.
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=75mm]{koncepty/screen_day_click_stop}
@@ -103,7 +103,7 @@ Są to rys.~\ref{koncept.ekran_glowny} i~rys.~\ref{koncept.dolny_przybornik}.
 % o~wybranym react nativie, o~paczce od map do reacta
 Do implementacji wybrałem \textit{framework} React-Native stworzony przez firmę Facebook~\cite{REACT}.
 Pozwala on na stworzenie aplikacji mobilnej z~systemem Android lub iOS przy pomocy jednego kodu źródłowego w~języku JavaScript XML (w skrócie JSX).
-Skupie się jednak na wersji aplikacji na system Android.
+Skupię się jednak na wersji aplikacji na system Android.
 Wybrałem także moduł \code{react-native-maps}~\cite{REACTMAPS}, który jest odpowiedzialny za wyświetlanie mapy Google oraz zarządzanie nią.
 
 \section{Publiczne API Warszawy}
@@ -125,7 +125,7 @@ Wszystkie z~wymienionych punktów końcowych interfejsu API zaimplementowałem w
 W React-Native wszystkie elementy, które wyświetlają się na ekranie są komponentami.
 Komponenty pomiędzy sobą są połączone relacją rodzic-dziecko.
 Niesie za sobą to pewne problemy.
-Jednym z~nich jest tzw.~\textit{prop-drilling}. % czy wyjaśniać czym jest?
+Jednym z~nich jest tzw.~\textit{prop-drilling}\footnote{Przekazywanie parametrów w dół poprzez wiele poiomów dziedziczenia. Dla wielu terminów trudno jest podać polski odpowiednik. W takich przypadkach, z braku lepszego rozwiązania, będziemy się posługiwać terminami angielskimi.}. % czy wyjaśniać czym jest?
 By tego uniknąć użyłem kontekstu dostępnego w~React i~stworzyłem komponent \code{GlobalContextProvider} odpowiedzialny za całą logikę aplikacji.
 Komponent ten przechowuje zmienne:
 \begin{itemize}
@@ -156,7 +156,7 @@ To wiązałoby się z~utratą na szybkości działania.
 % odpytuje wszystkie linie z~ulubionych i~dodaje do wyniku wszystko
 % odpytuje wszystkie linie z~radaru, które nie są w~ulubionych i~dodaje tylko
 %   te, które są w~zasięgu radaru
-By aktualizacja przebiegała sprawnie wraz z~wyświetlaniem logikę aktualizacji umieściłem w~komponencie \code{GMap}.
+By aktualizacja przebiegała sprawnie, wraz z~wyświetlaniem logikę aktualizacji umieściłem w~komponencie \code{GMap}.
 Jest to komponent, który jako dziecko posiada tylko komponent mapy.
 Jest to ważne bo gdy tylko zmieni się stan komponentu \code{GMap}, a~ten będzie się zmieniał co 10 sekund, to wywoła to ponowne wyrenderowanie tylko komponentu map.
 W tym komponencie zaimplementowałem funkcje, która:
@@ -206,7 +206,7 @@ By jeszcze bardziej ograniczyć ilość pinezek stworzyłem trzy progi wyświetl
 \end{enumerate}
 
 
-Pinezki przystanków i~grup przystanków różnią się tylko wielkością oraz wyglądają jak na rys.~\ref{screen.pin_przystanki}.
+Pinezki przystanków i~grup przystanków różnią się tylko wielkością oraz wyglądają jak na Rys.~\ref{screen.pin_przystanki}.
 Kliknięcie w~pinezkę grupy przystanków dopasuje wyświetlany region mapy do wszystkich przystanków w~grupie,
 a~w~pinezkę pojedynczego przystanku zaznaczy go.
 \begin{figure}
@@ -244,8 +244,8 @@ Dlatego do skryptu i~pliku opisanego w~\ref{FIREBASE} dodałem pobieranie dla ka
 
 
 \section{Rozkłady jazdy}
-By stworzyć możliwość sprawdzenia rozkładu jazdy dla danego przystanka postanowiłem dodać przycisk w~postaci ikony w~kontenerze u~góry ekranu po zaznaczeniu przystanka (patrz rys.~\ref{screen.topbox}).
-Po naciśnięciu aplikacja zmienia widok na liste odjazdów dla każdej z~linii (patrz rys.~\ref{screen.rozklad_jazdy}).
+By stworzyć możliwość sprawdzenia rozkładu jazdy dla danego przystanka postanowiłem dodać przycisk w~postaci ikony w~kontenerze u~góry ekranu po zaznaczeniu przystanka (patrz Rys.~\ref{screen.topbox}).
+Po naciśnięciu aplikacja zmienia widok na liste odjazdów dla każdej z~linii (patrz Rys.~\ref{screen.rozklad_jazdy}).
 Na rysunkach można zauważyć, że dodałem informacje na temat, ile czasu zostało do następnego odjazdu autobusu lub tramwaju.
 Jest to czas z~zaokrągleniem do minut w~dół obliczony na podstawie rozkładu jazdy.
 \begin{figure}[!htb]
@@ -292,10 +292,10 @@ Teraz by było możliwe zbudowanie aplikacji w~trybie debug należy wypełnić p
 
 \chapter{Podsumowanie i~wnioski}
 Stworzono aplikacje mobilną spełniającą założenia przedstawione w~sekcji~\ref{ZALOZENIA}.
-Końcowo ekran główny aplikacji wygląda jak na rys.~\ref{screen.glowny}.
-Funkcje aplikacji pozwalają na szybkie korzystanie z~aplikacji przez użytkownika po dodaniu linii i~przystanków do ulubionych.
-Aplikacja posiada też spore możliwości rozwoju takie jak przewidywanie czasów przyjazdu, kupowanie biletów lub wyświetlanie tras przejazdu danych linii autobusowych lub tramwajowych.
-Dzięki zastosowanej technologii React-Native aplikacja ma możliwość rozbudowy na systemy iOS.
+Końcowo ekran główny aplikacji wygląda jak na Rys.~\ref{screen.glowny}.
+Funkcje aplikacji pozwalają na szybkie korzystanie z~niej przez użytkownika po dodaniu linii i~przystanków do ulubionych.
+Aplikacja posiada też spore możliwości rozwoju, takie jak przewidywanie czasów przyjazdu, kupowanie biletów lub wyświetlanie tras przejazdu danych linii autobusowych lub tramwajowych.
+Dzięki zastosowanej technologii React-Native, isnieje możliwość dość łatwej rozbudowy aplikacji na systemy iOS.
 \begin{figure}
   \centering
   \includegraphics[width=75mm]{screeny/glowny_jasny}
